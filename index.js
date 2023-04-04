@@ -11,8 +11,7 @@ const cookieParser = require("cookie-parser");
 const { auth } = require("./middlewares/auth");
 
 const router = express.Router();
-const mongoString = 'mongodb+srv://aryanhussain78668:aryanhussain102@cluster0.cwmdqkx.mongodb.net/test';
-mongoose.connect(mongoString);
+mongoose.connect(process.env.MONGO_URL);
 const database = mongoose.connection;
 
 database.on("error", (error) => {
@@ -203,13 +202,12 @@ router.post("/user/generateToken", (req, res) => {
   // Validate User Here
   // Then generate JWT Token
 
-  let jwtSecretKey = db.JWT_SECRET_KEY;
   let data = {
     time: Date(),
     userId: 12,
   };
 
-  const token = jwt.sign(data, jwtSecretKey);
+  const token = jwt.sign(data, process.env.SECRET);
 
   res.send(token);
 });
@@ -217,8 +215,8 @@ router.get("/user/validateToken", (req, res) => {
   // Tokens are generally passed in the header of the request
   // Due to security reasons.
 
-  let tokenHeaderKey = db.TOKEN_HEADER_KEY;
-  let jwtSecretKey = db.JWT_SECRET_KEY;
+  let tokenHeaderKey = process.env.TOKEN_HEADER;
+  let jwtSecretKey = process.env.SECRET;
 
   try {
     const token = req.header(tokenHeaderKey);
@@ -247,13 +245,13 @@ router.post("/register", async (req, res) => {
     phone: phone,
     password: password,
   });
-  let jwtSecretKey = 'test';
+  
   let data = {
     time: Date(),
     userId: 12,
   };
 
-  const token = jwt.sign(password, jwtSecretKey);
+  const token = jwt.sign(password, process.env.SECRET);
   try {
     const results = await newuser.save();
     res.status(200).json({
